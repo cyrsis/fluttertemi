@@ -16,31 +16,42 @@ import com.robotemi.sdk.listeners.OnGoToLocationStatusChangedListener;
 import com.robotemi.sdk.listeners.OnLocationsUpdatedListener;
 import com.robotemi.sdk.listeners.OnRobotReadyListener;
 
-class FluttertemiPlugin: MethodCallHandler {
+class FluttertemiPlugin : MethodCallHandler {
 
-  private var robot: Robot? = null
-  var etSpeak: String = "";
-  var etSaveLocation: String = "";
-  var etGoTo:String = "";
-  var locations: List<String> = listOf();
+    private var robot: Robot? = null
+    var etSpeak: String = "";
+    var etSaveLocation: String = "";
+    var etGoTo: String = "";
+    var locations: List<String> = listOf();
 
-  companion object {
-    @JvmStatic
-    fun registerWith(registrar: Registrar) {
-      val channel = MethodChannel(registrar.messenger(), "fluttertemi")
-      channel.setMethodCallHandler(FluttertemiPlugin())
-    }
-  }
-
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-
-      return
+    companion object {
+        @JvmStatic
+        fun registerWith(registrar: Registrar) {
+            val channel = MethodChannel(registrar.messenger(), "fluttertemi")
+            channel.setMethodCallHandler(FluttertemiPlugin())
+        }
     }
 
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        if (call.method == "getPlatformVersion") {
+            result.success("Android ${android.os.Build.VERSION.RELEASE} + Some Shit")
 
-      result.notImplemented()
+            return
+        }
 
-  }
+        if (call.method == "temispeak") {
+            result.success(TemiSpeak("Something"));
+            return
+        }
+
+
+        result.notImplemented()
+
+    }
+
+    private fun TemiSpeak(textSouce: String) {
+        val ttsRequest = TtsRequest.create(textSouce.toString().trim({ it <= ' ' }), true)
+        this.robot?.speak(ttsRequest)
+
+    }
 }
